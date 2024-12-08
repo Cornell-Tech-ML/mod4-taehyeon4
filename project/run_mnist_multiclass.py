@@ -69,7 +69,7 @@ class Network(minitorch.Module):
         # Convolutional layers
         self.conv1 = Conv2d(in_channels=1, out_channels=4, kh=3, kw=3)
         self.conv2 = Conv2d(in_channels=4, out_channels=8, kh=3, kw=3)
-        
+
         # Fully connected layers
         self.fc1 = Linear(in_size=392, out_size=64)
         self.fc2 = Linear(in_size=64, out_size=C)
@@ -78,16 +78,16 @@ class Network(minitorch.Module):
         # Convolutional blocks
         self.mid = self.conv1(x).relu()
         self.out = self.conv2(self.mid).relu()
-        
+
         # Pooling and reshaping
         x = minitorch.avgpool2d(self.out, kernel=(4, 4))
         x = x.view(BATCH, 392)
-        
+
         # Fully connected blocks with dropout
         x = self.fc1(x).relu()
         x = minitorch.dropout(x, p=0.25, ignore=not self.training)
         x = self.fc2(x)
-        
+
         # Final activation
         return minitorch.logsoftmax(x, dim=1)
 

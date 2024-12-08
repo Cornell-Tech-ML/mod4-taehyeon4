@@ -62,11 +62,11 @@ class CNNSentimentKim(minitorch.Module):
         # Configuration
         self.feature_map_size = feature_map_size
         self.dropout_rate = dropout
-        
+
         # Convolutional layers
         self.conv1 = Conv1d(embedding_size, feature_map_size, filter_sizes[0])
         self.conv2 = Conv1d(embedding_size, feature_map_size, filter_sizes[1])
-        self.conv3 = Conv1d(embedding_size, feature_map_size, filter_sizes[2]) 
+        self.conv3 = Conv1d(embedding_size, feature_map_size, filter_sizes[2])
 
         # Final classification layer
         self.classifier = Linear(feature_map_size, 1)
@@ -77,21 +77,21 @@ class CNNSentimentKim(minitorch.Module):
         """
         # Reshape for 1D convolution [batch x embedding dim x sentence length]
         x = embeddings.permute(0, 2, 1)
-        
+
         # Apply parallel convolutions
         conv1 = minitorch.nn.max(self.conv1(x).relu(), dim=2)
         conv2 = minitorch.nn.max(self.conv2(x).relu(), dim=2)
         conv3 = minitorch.nn.max(self.conv3(x).relu(), dim=2)
-        
+
         # Combine features from all channels
         combined = conv1 + conv2 + conv3
-        
+
         # Classification
         batch_size = combined.shape[0]
         x = self.classifier(combined.view(batch_size, self.feature_map_size))
         x = x.relu()
         x = minitorch.dropout(x, self.dropout_rate, not self.training)
-        
+
         # Final activation
         return x.sigmoid().view(batch_size)
 

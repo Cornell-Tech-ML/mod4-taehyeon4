@@ -4,7 +4,7 @@ from . import operators
 from .autodiff import Context
 from .fast_ops import FastOps
 from .tensor import Tensor
-from .tensor_functions import Function, rand, tensor
+from .tensor_functions import Function, rand
 
 max_reduce = FastOps.reduce(operators.max, -1e9)
 
@@ -75,6 +75,7 @@ def argmax(input: Tensor, dim: int) -> Tensor:
     """Compute the argmax as a 1-hot tensor.
 
     Args:
+    ----
         input: input tensor
         dim: dimension to reduce over
 
@@ -111,6 +112,7 @@ class Max(Function):
         """Backward pass for Max.
 
         Args:
+        ----
             ctx: Context from forward pass
             grad_output: Gradient of the loss wrt output
 
@@ -134,6 +136,7 @@ def softmax(input: Tensor, dim: int) -> Tensor:
     """Compute softmax along dimension.
 
     Args:
+    ----
         input: Input tensor
         dim: Dimension to apply softmax over
 
@@ -152,6 +155,7 @@ def logsoftmax(input: Tensor, dim: int) -> Tensor:
     Uses the LogSumExp trick for numerical stability.
 
     Args:
+    ----
         input: Input tensor
         dim: Dimension to apply log softmax over
 
@@ -169,6 +173,7 @@ def maxpool2d(input: Tensor, kernel: Tuple[int, int]) -> Tensor:
     """Tiled max pooling 2D.
 
     Args:
+    ----
         input: batch x channel x height x width
         kernel: height x width of pooling
 
@@ -186,6 +191,7 @@ def dropout(input: Tensor, p: float, ignore: bool = False) -> Tensor:
     """Apply dropout with probability p.
 
     Args:
+    ----
         input: Input tensor
         p: Dropout probability
         ignore: If True, return input unchanged
