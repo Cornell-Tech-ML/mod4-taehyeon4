@@ -42,7 +42,7 @@ def test_max(t: Tensor) -> None:
             out[0, 0, 0],
             max(
                 [
-                    tensor[*([0] * dim + [i] + [0] * (2 - dim))]
+                    tensor[tuple([0] * dim + [i] + [0] * (2 - dim))]
                     for i in range(tensor.shape[dim])
                 ]
             ),
