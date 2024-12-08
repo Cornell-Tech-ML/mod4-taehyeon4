@@ -31,8 +31,55 @@ def test_avg(t: Tensor) -> None:
 @pytest.mark.task4_4
 @given(tensors(shape=(2, 3, 4)))
 def test_max(t: Tensor) -> None:
-    # TODO: Implement for Task 4.4.
-    raise NotImplementedError("Need to implement for Task 4.4")
+    def test_max_reduction_along_dim(
+        tensor: Tensor, dim: int, expected_shape: tuple
+    ) -> None:
+        out = minitorch.nn.max(tensor, dim)
+        # Test shape
+        assert out.shape == expected_shape
+        # Test value
+        assert_close(
+            out[0, 0, 0],
+            max(
+                [
+                    tensor[tuple([0] * dim + [i] + [0] * (2 - dim))]
+                    for i in range(tensor.shape[dim])
+                ]
+            ),
+        )
+
+    # Test max reduction along each dimension
+    test_cases = [
+        (0, (1, 3, 4)),  # First dimension
+        (1, (2, 1, 4)),  # Second dimension
+        (2, (2, 3, 1)),  # Third dimension
+    ]
+
+    for dim, expected_shape in test_cases:
+        test_max_reduction_along_dim(t, dim, expected_shape)
+
+    # Gradient checks
+    def test_gradients() -> None:
+        # Automatic gradient check (with noise to avoid non-differentiable points)
+        noisy_tensor = t + (minitorch.rand(t.shape) * 1e-4)
+        minitorch.grad_check(lambda x: minitorch.nn.max(x, 0), noisy_tensor)
+
+        # Manual gradient check
+        t.requires_grad_(True)
+        out = minitorch.nn.max(t, 2)  # max along last dimension
+        out.sum().backward()
+
+        assert t.grad is not None
+
+        # Check gradient values
+        for i in range(2):
+            for j in range(3):
+                max_val = out[i, j, 0]
+                for k in range(4):
+                    expected_grad = 1.0 if t[i, j, k] == max_val else 0.0
+                    assert_close(t.grad[i, j, k], expected_grad)
+
+    test_gradients()
 
 
 @pytest.mark.task4_4
